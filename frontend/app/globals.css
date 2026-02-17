@@ -1,0 +1,105 @@
+@import "tailwindcss";
+
+:root {
+  --bg: #f3f7f9;
+  --bg-2: #e8f0f4;
+  --card: #ffffffd9;
+  --card-2: #f6fbff;
+  --text: #0b1b2a;
+  --muted: #5a6d7d;
+  --border: #c8d7e2;
+  --accent: #0f766e;
+  --accent-soft: #d9f4f0;
+  --danger: #be123c;
+  --success: #0f766e;
+}
+
+.dark {
+  --bg: #08131e;
+  --bg-2: #0d1d2d;
+  --card: #0f2236d9;
+  --card-2: #15304a;
+  --text: #e5f0f7;
+  --muted: #94a8b7;
+  --border: #294660;
+  --accent: #34d399;
+  --accent-soft: #1b3a44;
+  --danger: #fb7185;
+  --success: #6ee7b7;
+}
+
+@theme inline {
+  --font-sans: "Avenir Next", "Trebuchet MS", "Segoe UI", "Noto Sans", sans-serif;
+  --font-mono: "Fira Code", "Menlo", "Monaco", monospace;
+}
+
+* {
+  border-color: var(--border);
+}
+
+body {
+  background:
+    radial-gradient(1200px 500px at 5% -20%, color-mix(in oklab, var(--accent) 30%, transparent), transparent 60%),
+    radial-gradient(1000px 450px at 95% -10%, color-mix(in oklab, var(--success) 26%, transparent), transparent 60%),
+    linear-gradient(180deg, var(--bg), var(--bg-2));
+  color: var(--text);
+  font-family: "Avenir Next", "Trebuchet MS", "Segoe UI", "Noto Sans", sans-serif;
+  min-height: 100vh;
+}
+
+::selection {
+  background: color-mix(in oklab, var(--accent) 35%, transparent);
+}
+
+.page-shell {
+  min-height: calc(100vh - 73px);
+}
+
+.app-container {
+  margin-inline: auto;
+  width: 100%;
+  max-width: 80rem;
+  padding-inline: 1rem;
+  padding-block: 2rem;
+}
+
+.app-card {
+  border: 1px solid var(--border);
+  background: var(--card);
+  border-radius: 1rem;
+  box-shadow: 0 12px 40px color-mix(in oklab, #000 14%, transparent);
+}
+
+.btn-primary {
+  background: var(--accent);
+  color: #fff;
+}
+
+.btn-secondary {
+  background: var(--card-2);
+  color: var(--text);
+}
+
+.btn-danger {
+  background: var(--danger);
+  color: #fff;
+}
+
+.input-ui {
+  background: var(--card-2);
+  border: 1px solid var(--border);
+  color: var(--text);
+  border-radius: 0.75rem;
+  padding: 0.55rem 0.8rem;
+}
+
+.input-ui:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px color-mix(in oklab, var(--accent) 22%, transparent);
+}
+
+.title-display {
+  font-family: "Futura", "Gill Sans", "Trebuchet MS", sans-serif;
+  letter-spacing: -0.02em;
+}

@@ -1,0 +1,29 @@
+# Core FastAPI
+fastapi==0.109.0
+uvicorn[standard]==0.27.0
+pydantic==2.5.3
+pydantic-settings==2.1.0
+
+# Database
+sqlalchemy==2.0.25
+aiosqlite==0.19.0
+
+# AI & Web Search
+anthropic==0.79.0
+tavily-python==0.3.3
+
+# Web Scraping
+praw==7.7.1
+tweepy==4.14.0
+requests==2.31.0
+beautifulsoup4==4.12.3
+
+# Utilities
+python-dotenv==1.0.0
+pyyaml==6.0.1
+python-multipart==0.0.6
+feedparser==6.0.10
+
+# Scheduling
+apscheduler==3.10.4
+# pytrends==4.9.2  # For Google Trends

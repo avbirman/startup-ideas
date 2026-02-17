@@ -1,0 +1,260 @@
+reddit:
+  history_cooldown_hours: 24
+  subreddits:
+    - name: "mildlyinfuriating"
+      keywords:
+        - "annoying"
+        - "frustrating"
+        - "hate when"
+        - "drives me crazy"
+      min_upvotes: 25
+      max_posts: 20
+
+    - name: "freelance"
+      keywords:
+        - "problem with"
+        - "struggling with"
+        - "wish there was"
+        - "frustrated by"
+      min_upvotes: 12
+      max_posts: 15
+
+    - name: "productivity"
+      keywords:
+        - "inefficient"
+        - "waste time"
+        - "better way"
+        - "slow process"
+      min_upvotes: 15
+      max_posts: 15
+
+    - name: "smallbusiness"
+      keywords:
+        - "problem"
+        - "challenge"
+        - "difficult"
+        - "wish"
+      min_upvotes: 12
+      max_posts: 15
+
+    - name: "technology"
+      keywords:
+        - "frustrating"
+        - "doesn't work"
+        - "terrible"
+        - "annoying"
+      min_upvotes: 20
+      max_posts: 10
+
+    - name: "entrepreneur"
+      keywords:
+        - "struggling"
+        - "what tool"
+        - "problem"
+        - "how do you"
+      min_upvotes: 8
+      max_posts: 12
+
+    - name: "SaaS"
+      keywords:
+        - "churn"
+        - "pain point"
+        - "customer problem"
+        - "friction"
+      min_upvotes: 8
+      max_posts: 12
+
+  # Global problem indicators for all subreddits
+  problem_indicators:
+    - "I wish"
+    - "frustrated"
+    - "annoying"
+    - "why is there no"
+    - "problem with"
+    - "hate that"
+    - "wish someone would make"
+    - "there should be"
+    - "why can't"
+    - "so annoying when"
+
+hackernews:
+  history_cooldown_hours: 24
+  min_score: 10
+  max_items: 30
+  keywords:
+    - "the problem with"
+    - "doesn't solve"
+    - "I wish"
+    - "frustrating"
+    - "pain point"
+    - "how do you handle"
+    - "any tool for"
+    - "looking for"
+
+  # Focus on these HN item types
+  item_types:
+    - "ask_hn"
+    - "show_hn"
+
+twitter:
+  max_results_per_query: 10  # Free tier: max 10 per request
+  search_queries:
+    - query: '"I wish there was" OR "frustrated by" OR "annoying that" -is:retweet'
+      label: "general_frustrations"
+      min_engagement: 10
+
+    - query: "\"the problem with\" OR \"doesn't solve\" OR \"pain point\" startup -is:retweet"
+      label: "startup_problems"
+      min_engagement: 15
+
+    - query: '"so annoying" OR "waste time" productivity tool -is:retweet'
+      label: "productivity_problems"
+      min_engagement: 10
+
+    - query: "\"wish someone would make\" OR \"why isn't there\" -is:retweet"
+      label: "feature_requests"
+      min_engagement: 10
+
+    - query: '"freelance problem" OR "freelancer struggle" -is:retweet'
+      label: "freelance_problems"
+      min_engagement: 5
+
+indiehackers:
+  max_posts: 20
+  min_upvotes: 5
+  sections:
+    - "newest"
+    - "popular"
+  problem_keywords:
+    - "problem"
+    - "struggling"
+    - "frustrated"
+    - "challenge"
+    - "difficult"
+    - "pain point"
+    - "wish there was"
+    - "looking for"
+    - "need help"
+
+producthunt:
+  max_products: 20
+  min_upvotes: 10
+  days_to_check: 2  # Check today and yesterday
+  problem_keywords:
+    - "missing"
+    - "lack"
+    - "need"
+    - "wish"
+    - "problem"
+    - "issue"
+    - "doesn't"
+    - "could be better"
+
+quora:
+  max_questions: 20
+  min_upvotes: 5
+  topics:
+    - "Small-Business"
+    - "Entrepreneurship"
+    - "Productivity"
+    - "Personal-Finance"
+    - "Freelancing"
+    - "Project-Management"
+  problem_keywords:
+    - "how can I"
+    - "how do I"
+    - "what's the best way"
+    - "struggling with"
+    - "problem with"
+    - "difficult to"
+    - "challenge"
+
+youtube:
+  history_cooldown_hours: 48
+  max_videos: 10
+  max_comments_per_video: 20
+  search_queries:
+    - query: "small business problems 2026"
+      label: "small_business"
+      min_engagement: 5
+
+    - query: "freelance struggles productivity"
+      label: "freelance_productivity"
+      min_engagement: 3
+
+    - query: "home improvement frustrating"
+      label: "home_improvement"
+      min_engagement: 5
+
+    - query: "parenting hacks need"
+      label: "parenting_problems"
+      min_engagement: 3
+
+    - query: "personal finance budgeting difficult"
+      label: "finance_problems"
+      min_engagement: 5
+  problem_keywords:
+    - "problem"
+    - "issue"
+    - "struggle"
+    - "difficult"
+    - "frustrated"
+    - "wish there was"
+    - "need"
+    - "annoying"
+
+medium:
+  history_cooldown_hours: 48
+  max_articles: 20
+  fetch_full_content: false  # Set to true to attempt fetching full articles (slower)
+  tags:
+    - "entrepreneurship"
+    - "startup"
+    - "productivity"
+    - "small-business"
+    - "freelancing"
+    - "personal-finance"
+  problem_keywords:
+    - "problem"
+    - "challenge"
+    - "struggle"
+    - "difficult"
+    - "frustrated"
+    - "pain point"
+
+discourse:
+  max_topics: 20
+  min_likes: 2
+  forums:
+    - name: "Obsidian"
+      url: "https://forum.obsidian.md"
+      category_id: null
+
+    - name: "Bogleheads"
+      url: "https://www.bogleheads.org/forum"
+      category_id: null
+  problem_keywords:
+    - "how to"
+    - "problem"
+    - "issue"
+    - "help with"
+    - "struggle"
+    - "difficulty"
+
+ai:
+  # Model configuration
+  filter_model: "claude-3-haiku-20240307"
+  analysis_model: "claude-sonnet-4-5-20250929"
+
+  # Quality thresholds
+  min_confidence_to_store: 5
+  auto_deep_analysis_threshold: 70
+
+  # Rate limiting (requests per minute)
+  max_requests_per_minute: 50
+
+# Scheduler configuration (for later phases)
+scheduler:
+  enabled: false
+  daily_run_time: "09:00"
+  batch_size: 50
