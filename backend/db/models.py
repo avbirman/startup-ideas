@@ -33,6 +33,9 @@ class SourceType(str, enum.Enum):
     YOUTUBE = "youtube"
     MEDIUM = "medium"
     DISCOURSE = "discourse"
+    TAVILY = "tavily"
+    APPSTORE = "appstore"
+    G2 = "g2"
 
 
 class AnalysisTier(str, enum.Enum):
@@ -160,9 +163,11 @@ class StartupIdea(Base):
     # Idea details
     idea_title = Column(String(300), nullable=False)
     description = Column(Text, nullable=False)
-    approach = Column(String(100), nullable=True)  # SaaS, marketplace, tool, API
+    approach = Column(String(100), nullable=True)  # SaaS, marketplace, tool, API, mobile_app, community, browser_extension
+    business_model = Column(String(200), nullable=True)  # B2C subscription, B2B SaaS, freemium, etc.
     value_proposition = Column(Text, nullable=True)
     core_features = Column(JSON, nullable=True)  # List of features
+    monetization = Column(Text, nullable=True)  # Specific monetization details
     tags = Column(JSON, nullable=True)  # Categorization tags
 
     # Metadata

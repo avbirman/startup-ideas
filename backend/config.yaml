@@ -1,5 +1,5 @@
 reddit:
-  history_cooldown_hours: 24
+  history_cooldown_hours: 8
   subreddits:
     - name: "mildlyinfuriating"
       keywords:
@@ -7,8 +7,8 @@ reddit:
         - "frustrating"
         - "hate when"
         - "drives me crazy"
-      min_upvotes: 25
-      max_posts: 20
+      min_upvotes: 15
+      max_posts: 25
 
     - name: "freelance"
       keywords:
@@ -16,8 +16,8 @@ reddit:
         - "struggling with"
         - "wish there was"
         - "frustrated by"
-      min_upvotes: 12
-      max_posts: 15
+      min_upvotes: 5
+      max_posts: 20
 
     - name: "productivity"
       keywords:
@@ -25,8 +25,8 @@ reddit:
         - "waste time"
         - "better way"
         - "slow process"
-      min_upvotes: 15
-      max_posts: 15
+      min_upvotes: 8
+      max_posts: 20
 
     - name: "smallbusiness"
       keywords:
@@ -34,8 +34,8 @@ reddit:
         - "challenge"
         - "difficult"
         - "wish"
-      min_upvotes: 12
-      max_posts: 15
+      min_upvotes: 5
+      max_posts: 20
 
     - name: "technology"
       keywords:
@@ -43,8 +43,8 @@ reddit:
         - "doesn't work"
         - "terrible"
         - "annoying"
-      min_upvotes: 20
-      max_posts: 10
+      min_upvotes: 10
+      max_posts: 15
 
     - name: "entrepreneur"
       keywords:
@@ -52,8 +52,8 @@ reddit:
         - "what tool"
         - "problem"
         - "how do you"
-      min_upvotes: 8
-      max_posts: 12
+      min_upvotes: 5
+      max_posts: 15
 
     - name: "SaaS"
       keywords:
@@ -61,10 +61,151 @@ reddit:
         - "pain point"
         - "customer problem"
         - "friction"
-      min_upvotes: 8
-      max_posts: 12
+      min_upvotes: 5
+      max_posts: 15
 
-  # Global problem indicators for all subreddits
+    - name: "startups"
+      keywords:
+        - "problem"
+        - "pain point"
+        - "struggling"
+        - "gap in market"
+        - "missing solution"
+      min_upvotes: 5
+      max_posts: 15
+
+    - name: "Entrepreneur"
+      keywords:
+        - "problem"
+        - "challenge"
+        - "wish there was"
+        - "how do you deal"
+      min_upvotes: 5
+      max_posts: 15
+
+    - name: "personalfinance"
+      keywords:
+        - "annoying"
+        - "wish"
+        - "why is there no"
+        - "frustrated"
+        - "hard to"
+      min_upvotes: 10
+      max_posts: 15
+
+    - name: "nocode"
+      keywords:
+        - "limitation"
+        - "can't do"
+        - "missing feature"
+        - "workaround"
+        - "wish it could"
+      min_upvotes: 3
+      max_posts: 15
+
+    - name: "remotework"
+      keywords:
+        - "problem"
+        - "struggling"
+        - "annoying"
+        - "wish"
+        - "difficult"
+      min_upvotes: 5
+      max_posts: 15
+
+    - name: "freelancers"
+      keywords:
+        - "problem with"
+        - "hate that"
+        - "frustrated"
+        - "no good tool"
+      min_upvotes: 3
+      max_posts: 15
+
+    - name: "sidehustle"
+      keywords:
+        - "problem"
+        - "challenge"
+        - "struggling"
+        - "how do you"
+      min_upvotes: 3
+      max_posts: 15
+
+    - name: "webdev"
+      keywords:
+        - "annoying"
+        - "frustrating"
+        - "why is there no"
+        - "wish there was"
+        - "pain"
+      min_upvotes: 5
+      max_posts: 15
+
+    - name: "digitalnomad"
+      keywords:
+        - "problem"
+        - "struggle"
+        - "wish"
+        - "annoying"
+      min_upvotes: 5
+      max_posts: 15
+
+    - name: "LifeProTips"
+      keywords:
+        - "annoying"
+        - "waste time"
+        - "better way"
+      min_upvotes: 20
+      max_posts: 10
+
+    - name: "Parenting"
+      keywords:
+        - "frustrating"
+        - "wish there was"
+        - "struggling"
+        - "no good app"
+        - "need a solution"
+      min_upvotes: 10
+      max_posts: 15
+
+    - name: "HomeImprovement"
+      keywords:
+        - "annoying"
+        - "problem with"
+        - "wish"
+        - "struggling"
+      min_upvotes: 5
+      max_posts: 15
+
+    - name: "marketing"
+      keywords:
+        - "pain point"
+        - "struggle"
+        - "problem with"
+        - "no good tool"
+        - "wish"
+      min_upvotes: 5
+      max_posts: 15
+
+    - name: "CustomerService"
+      keywords:
+        - "terrible"
+        - "broken"
+        - "no way to"
+        - "should be easier"
+      min_upvotes: 5
+      max_posts: 10
+
+    - name: "legaladvice"
+      keywords:
+        - "frustrating"
+        - "no good service"
+        - "wish there was"
+        - "why is it so hard"
+      min_upvotes: 5
+      max_posts: 10
+
+  # Global problem indicators applied to all subreddits
   problem_indicators:
     - "I wish"
     - "frustrated"
@@ -76,11 +217,21 @@ reddit:
     - "there should be"
     - "why can't"
     - "so annoying when"
+    - "I can't believe there's no"
+    - "does anyone else hate"
+    - "how do people deal with"
+    - "no good solution"
+    - "still no app for"
+    - "why don't they just"
+    - "this is ridiculous"
+    - "makes no sense that"
+    - "drives me insane"
+    - "can't stand"
 
 hackernews:
-  history_cooldown_hours: 24
-  min_score: 10
-  max_items: 30
+  history_cooldown_hours: 8
+  min_score: 5
+  max_items: 40
   keywords:
     - "the problem with"
     - "doesn't solve"
@@ -90,6 +241,9 @@ hackernews:
     - "how do you handle"
     - "any tool for"
     - "looking for"
+    - "what do you use for"
+    - "anyone built"
+    - "gap in the market"
 
   # Focus on these HN item types
   item_types:
@@ -101,27 +255,27 @@ twitter:
   search_queries:
     - query: '"I wish there was" OR "frustrated by" OR "annoying that" -is:retweet'
       label: "general_frustrations"
-      min_engagement: 10
+      min_engagement: 5
 
     - query: "\"the problem with\" OR \"doesn't solve\" OR \"pain point\" startup -is:retweet"
       label: "startup_problems"
-      min_engagement: 15
+      min_engagement: 10
 
     - query: '"so annoying" OR "waste time" productivity tool -is:retweet'
       label: "productivity_problems"
-      min_engagement: 10
+      min_engagement: 5
 
     - query: "\"wish someone would make\" OR \"why isn't there\" -is:retweet"
       label: "feature_requests"
-      min_engagement: 10
+      min_engagement: 5
 
     - query: '"freelance problem" OR "freelancer struggle" -is:retweet'
       label: "freelance_problems"
-      min_engagement: 5
+      min_engagement: 3
 
 indiehackers:
   max_posts: 20
-  min_upvotes: 5
+  min_upvotes: 3
   sections:
     - "newest"
     - "popular"
@@ -137,9 +291,9 @@ indiehackers:
     - "need help"
 
 producthunt:
-  max_products: 20
-  min_upvotes: 10
-  days_to_check: 2  # Check today and yesterday
+  max_products: 25
+  min_upvotes: 5
+  days_to_check: 3
   problem_keywords:
     - "missing"
     - "lack"
@@ -149,10 +303,12 @@ producthunt:
     - "issue"
     - "doesn't"
     - "could be better"
+    - "alternative to"
+    - "hate about"
 
 quora:
   max_questions: 20
-  min_upvotes: 5
+  min_upvotes: 3
   topics:
     - "Small-Business"
     - "Entrepreneurship"
@@ -170,13 +326,13 @@ quora:
     - "challenge"
 
 youtube:
-  history_cooldown_hours: 48
-  max_videos: 10
-  max_comments_per_video: 20
+  history_cooldown_hours: 24
+  max_videos: 15
+  max_comments_per_video: 30
   search_queries:
     - query: "small business problems 2026"
       label: "small_business"
-      min_engagement: 5
+      min_engagement: 3
 
     - query: "freelance struggles productivity"
       label: "freelance_productivity"
@@ -184,7 +340,7 @@ youtube:
 
     - query: "home improvement frustrating"
       label: "home_improvement"
-      min_engagement: 5
+      min_engagement: 3
 
     - query: "parenting hacks need"
       label: "parenting_problems"
@@ -192,7 +348,16 @@ youtube:
 
     - query: "personal finance budgeting difficult"
       label: "finance_problems"
-      min_engagement: 5
+      min_engagement: 3
+
+    - query: "app that doesn't exist but should"
+      label: "missing_apps"
+      min_engagement: 3
+
+    - query: "software that sucks alternatives"
+      label: "software_complaints"
+      min_engagement: 3
+
   problem_keywords:
     - "problem"
     - "issue"
@@ -204,9 +369,9 @@ youtube:
     - "annoying"
 
 medium:
-  history_cooldown_hours: 48
+  history_cooldown_hours: 24
   max_articles: 20
-  fetch_full_content: false  # Set to true to attempt fetching full articles (slower)
+  fetch_full_content: false
   tags:
     - "entrepreneurship"
     - "startup"
@@ -241,6 +406,50 @@ discourse:
     - "struggle"
     - "difficulty"
 
+# Tavily active problem search
+tavily:
+  max_results_per_query: 5
+  search_depth: "basic"
+  search_queries:
+    - query: "users frustrated with software productivity tools 2026 reddit"
+      label: "productivity_frustrations"
+    - query: "startup ideas problems people complain about 2026"
+      label: "startup_problems"
+    - query: "app reviews 1 star complaints most common 2026"
+      label: "app_complaints"
+    - query: "\"no good app for\" OR \"wish there was an app\" site:reddit.com"
+      label: "missing_apps_reddit"
+    - query: "SaaS pain points customers hate 2026"
+      label: "saas_pain_points"
+    - query: "small business owners frustrated with tools 2026"
+      label: "smb_frustrations"
+    - query: "freelancers biggest problems software 2026"
+      label: "freelancer_problems"
+    - query: "\"why is there no\" app tool service site:reddit.com"
+      label: "missing_tools_reddit"
+    - query: "product hunt negative reviews what users hate"
+      label: "producthunt_negatives"
+    - query: "G2 review \"what I dislike\" software frustrating 2026"
+      label: "g2_dislikes"
+
+# App Store reviews
+appstore:
+  history_cooldown_hours: 48
+  max_apps_per_category: 10
+  max_reviews_per_app: 20
+  min_rating: 2  # Only 1-2 star reviews
+  categories:
+    - id: "6000"  # Business
+      name: "Business"
+    - id: "6007"  # Productivity
+      name: "Productivity"
+    - id: "6015"  # Finance
+      name: "Finance"
+    - id: "6016"  # Health & Fitness
+      name: "Health & Fitness"
+    - id: "6017"  # Education
+      name: "Education"
+
 ai:
   # Model configuration
   filter_model: "claude-3-haiku-20240307"
@@ -253,7 +462,7 @@ ai:
   # Rate limiting (requests per minute)
   max_requests_per_minute: 50
 
-# Scheduler configuration (for later phases)
+# Scheduler configuration
 scheduler:
   enabled: false
   daily_run_time: "09:00"

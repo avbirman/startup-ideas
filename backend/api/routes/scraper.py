@@ -16,6 +16,8 @@ from agents.scrapers.reddit_agent import RedditScraper
 from agents.scrapers.hackernews_agent import HackerNewsScraper
 from agents.scrapers.youtube_agent import YouTubeScraper
 from agents.scrapers.medium_agent import MediumScraper
+from agents.scrapers.tavily_agent import TavilySearchScraper
+from agents.scrapers.appstore_agent import AppStoreScraper
 from services.orchestrator import Orchestrator
 from services.scheduler import scrape_scheduler
 
@@ -65,6 +67,12 @@ def run_scrape_and_analyze(source: str, limit: int, triggered_by: str = "manual"
             scrape_result = scraper.run()
         elif source == "medium":
             scraper = MediumScraper(db)
+            scrape_result = scraper.run()
+        elif source == "tavily":
+            scraper = TavilySearchScraper(db)
+            scrape_result = scraper.run()
+        elif source == "appstore":
+            scraper = AppStoreScraper(db)
             scrape_result = scraper.run()
         else:
             log_entry = db.query(ScrapeLog).get(log_id)
@@ -139,18 +147,20 @@ async def trigger_scrape(
     logger.info(f"Manual scrape triggered: source={source}, limit={limit}, analyze={analyze}")
 
     if source == "all":
-        per_source_limit = max(1, limit // 4)
+        per_source_limit = max(1, limit // 6)
         background_tasks.add_task(run_scrape_and_analyze, "reddit", per_source_limit, "manual")
         background_tasks.add_task(run_scrape_and_analyze, "hackernews", per_source_limit, "manual")
         background_tasks.add_task(run_scrape_and_analyze, "youtube", per_source_limit, "manual")
         background_tasks.add_task(run_scrape_and_analyze, "medium", per_source_limit, "manual")
+        background_tasks.add_task(run_scrape_and_analyze, "tavily", per_source_limit, "manual")
+        background_tasks.add_task(run_scrape_and_analyze, "appstore", per_source_limit, "manual")
         return {
             "status": "started",
-            "message": f"Scraping Reddit, Hacker News, YouTube, Medium ({per_source_limit} each)",
+            "message": f"Scraping Reddit, Hacker News, YouTube, Medium, Tavily, App Store ({per_source_limit} each)",
             "analyze": analyze,
             "timestamp": datetime.utcnow().isoformat()
         }
-    elif source in ["reddit", "hackernews", "youtube", "medium"]:
+    elif source in ["reddit", "hackernews", "youtube", "medium", "tavily", "appstore"]:
         background_tasks.add_task(run_scrape_and_analyze, source, limit, "manual")
         return {
             "status": "started",

@@ -141,6 +141,18 @@ class ConfigLoader:
         """Get scheduler configuration"""
         return self.config.get('scheduler', {})
 
+    def get_tavily_config(self) -> Dict[str, Any]:
+        """Get Tavily search configuration"""
+        return self.config.get('tavily', {})
+
+    def get_appstore_config(self) -> Dict[str, Any]:
+        """Get App Store scraper configuration"""
+        return self.config.get('appstore', {})
+
+    def get(self, key: str, default=None):
+        """Generic getter for any config section"""
+        return self.config.get(key, default)
+
     def get_subreddits(self) -> List[Dict[str, Any]]:
         """Get list of subreddits to monitor"""
         reddit_config = self.get_reddit_config()

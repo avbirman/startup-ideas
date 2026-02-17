@@ -142,17 +142,20 @@ Provide your analysis in this EXACT JSON format (all text fields in Russian):
         {{
             "title": "Idea name",
             "description": "What the startup does (2-3 sentences)",
-            "approach": "SaaS/marketplace/tool/API",
+            "approach": "SaaS/marketplace/tool/API/mobile_app/community/browser_extension",
+            "business_model": "B2C subscription/B2B SaaS/freemium/marketplace commission/one-time purchase/API usage",
             "value_proposition": "Why would people pay for this?",
-            "core_features": ["Feature 1", "Feature 2", "Feature 3"]
+            "core_features": ["Feature 1", "Feature 2", "Feature 3"],
+            "monetization": "How exactly does it make money? (e.g. $9/mo per user, 5% commission, $99 one-time)"
         }}
     ]
 }}
 
 Guidelines:
 - Severity: 1-10 scale (1=minor annoyance, 10=critical business problem)
-- Generate 2-4 different startup ideas with different approaches
-- Be specific and realistic
+- Generate 5-7 different startup ideas, each with a DIFFERENT approach and business model
+- Cover at least 3 different approaches: e.g. SaaS + mobile_app + browser_extension + marketplace + API
+- Be specific and realistic about monetization
 - Prioritize mass-market B2C opportunities where possible (everyday users, frequent pain)
 - audience_type:
   - consumers: ordinary people / household / personal day-to-day problems
@@ -215,8 +218,10 @@ IMPORTANT: Always provide your analysis in Russian language."""
                     idea_title=idea_data.get('title', ''),
                     description=idea_data.get('description', ''),
                     approach=idea_data.get('approach'),
+                    business_model=idea_data.get('business_model'),
                     value_proposition=idea_data.get('value_proposition'),
-                    core_features=idea_data.get('core_features', [])
+                    core_features=idea_data.get('core_features', []),
+                    monetization=idea_data.get('monetization'),
                 )
                 self.db.add(idea)
 

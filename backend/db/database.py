@@ -96,6 +96,22 @@ def migrate_db():
                 WHERE audience_type IS NULL OR audience_type = '' OR audience_type = 'unknown'
             """)
 
+    # --- Migrate startup_ideas table columns ---
+    cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='startup_ideas'")
+    if cursor.fetchone():
+        cursor.execute("PRAGMA table_info(startup_ideas)")
+        existing_idea_columns = {row[1] for row in cursor.fetchall()}
+
+        idea_migrations = [
+            ("business_model", "VARCHAR(200)"),
+            ("monetization", "TEXT"),
+        ]
+
+        for col_name, col_type in idea_migrations:
+            if col_name not in existing_idea_columns:
+                cursor.execute(f"ALTER TABLE startup_ideas ADD COLUMN {col_name} {col_type}")
+                print(f"  Migration: added column startup_ideas.{col_name}")
+
     # --- Create scrape_logs table if missing ---
     cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='scrape_logs'")
     if not cursor.fetchone():
