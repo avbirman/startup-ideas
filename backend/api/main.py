@@ -17,7 +17,7 @@ from typing import List, Optional
 from datetime import datetime, timedelta
 import logging
 
-from db.database import SessionLocal, migrate_db
+from db.database import SessionLocal, init_db
 from api.routes import problems, scraper, stats
 from services.scheduler import scrape_scheduler
 
@@ -28,8 +28,8 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-# Run database migration on startup (add new columns/tables if missing)
-migrate_db()
+# Initialize database (create tables if missing, then migrate)
+init_db()
 
 
 @asynccontextmanager
