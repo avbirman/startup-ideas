@@ -12,11 +12,9 @@ COPY backend/ .
 # Create data directory for SQLite
 RUN mkdir -p /data
 
-# Environment
 ENV DATABASE_PATH=/data/startup_ideas.db
 ENV PYTHONPATH=/app
-ENV PORT=8000
 
-EXPOSE ${PORT}
+EXPOSE 8000
 
-CMD uvicorn api.main:app --host 0.0.0.0 --port ${PORT}
+CMD ["uvicorn", "api.main:app", "--host", "0.0.0.0", "--port", "8000"]
