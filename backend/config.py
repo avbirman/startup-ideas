@@ -5,65 +5,67 @@ import os
 from pathlib import Path
 from typing import List, Dict, Any
 import yaml
-from pydantic_settings import BaseSettings
+from pydantic_settings import BaseSettings, SettingsConfigDict
 from pydantic import Field
 
 
 class Settings(BaseSettings):
     """Application settings loaded from environment variables"""
 
-    # API Keys
-    anthropic_api_key: str = Field(..., env="ANTHROPIC_API_KEY")
-    tavily_api_key: str = Field(..., env="TAVILY_API_KEY")
+    model_config = SettingsConfigDict(
+        env_file=".env",
+        env_file_encoding="utf-8",
+        case_sensitive=False,
+        extra="ignore",
+    )
 
-    # Reddit API (optional - scraper works without API keys via public JSON)
-    reddit_client_id: str = Field(default="", env="REDDIT_CLIENT_ID")
-    reddit_client_secret: str = Field(default="", env="REDDIT_CLIENT_SECRET")
+    # API Keys
+    anthropic_api_key: str = Field(default="", alias="ANTHROPIC_API_KEY")
+    tavily_api_key: str = Field(default="", alias="TAVILY_API_KEY")
+
+    # Reddit API (optional)
+    reddit_client_id: str = Field(default="", alias="REDDIT_CLIENT_ID")
+    reddit_client_secret: str = Field(default="", alias="REDDIT_CLIENT_SECRET")
     reddit_user_agent: str = Field(
         default="startup-ideas-collector/1.0",
-        env="REDDIT_USER_AGENT"
+        alias="REDDIT_USER_AGENT"
     )
 
     # Twitter/X API
-    twitter_bearer_token: str = Field(default="", env="TWITTER_BEARER_TOKEN")
+    twitter_bearer_token: str = Field(default="", alias="TWITTER_BEARER_TOKEN")
 
     # Product Hunt API (optional)
-    producthunt_api_token: str = Field(default="", env="PRODUCTHUNT_API_TOKEN")
+    producthunt_api_token: str = Field(default="", alias="PRODUCTHUNT_API_TOKEN")
 
-    # YouTube Data API (free tier: 10,000 units/day)
-    youtube_api_key: str = Field(default="", env="YOUTUBE_API_KEY")
+    # YouTube Data API
+    youtube_api_key: str = Field(default="", alias="YOUTUBE_API_KEY")
 
     # Database
     database_path: str = Field(
-        default="./backend/data/startup_ideas.db",
-        env="DATABASE_PATH"
+        default="/data/startup_ideas.db",
+        alias="DATABASE_PATH"
     )
 
     # API Configuration
-    api_host: str = Field(default="0.0.0.0", env="API_HOST")
-    api_port: int = Field(default=8000, env="API_PORT")
+    api_host: str = Field(default="0.0.0.0", alias="API_HOST")
+    api_port: int = Field(default=8000, alias="API_PORT")
 
     # AI Models
     filter_model: str = Field(
         default="claude-3-haiku-20240307",
-        env="FILTER_MODEL"
+        alias="FILTER_MODEL"
     )
     analysis_model: str = Field(
         default="claude-sonnet-4-5-20250929",
-        env="ANALYSIS_MODEL"
+        alias="ANALYSIS_MODEL"
     )
 
     # Cost Optimization
-    min_confidence_to_store: int = Field(default=5, env="MIN_CONFIDENCE_TO_STORE")
+    min_confidence_to_store: int = Field(default=5, alias="MIN_CONFIDENCE_TO_STORE")
     auto_deep_analysis_threshold: int = Field(
         default=70,
-        env="AUTO_DEEP_ANALYSIS_THRESHOLD"
+        alias="AUTO_DEEP_ANALYSIS_THRESHOLD"
     )
-
-    class Config:
-        # Look for .env in parent directory (project root)
-        env_file = "../.env"
-        case_sensitive = False
 
 
 class ConfigLoader:
