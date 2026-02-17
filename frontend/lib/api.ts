@@ -4,9 +4,9 @@
 
 import type { Problem, ProblemDetail, ProblemFilters, Stats, Competitor, CardStatus, ScrapeSchedule, ScrapeLogEntry, ScrapeSource } from '@/types';
 
-// If NEXT_PUBLIC_API_URL is set (local dev), call backend directly.
-// Otherwise use '' (relative URL) — Next.js rewrites in next.config.ts proxy /api/* to backend.
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? '';
+// NEXT_PUBLIC_API_URL can be set in .env.local for local dev (e.g. http://localhost:8000).
+// Production fallback points directly to Railway backend.
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'https://startup-ideas-production.up.railway.app';
 
 class ApiClient {
   private baseUrl: string;
