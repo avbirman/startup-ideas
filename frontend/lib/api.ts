@@ -4,7 +4,9 @@
 
 import type { Problem, ProblemDetail, ProblemFilters, Stats, Competitor, CardStatus, ScrapeSchedule, ScrapeLogEntry, ScrapeSource } from '@/types';
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+// If NEXT_PUBLIC_API_URL is set (local dev), call backend directly.
+// Otherwise use '' (relative URL) — Next.js rewrites in next.config.ts proxy /api/* to backend.
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? '';
 
 class ApiClient {
   private baseUrl: string;
