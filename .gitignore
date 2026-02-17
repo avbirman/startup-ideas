@@ -17,8 +17,8 @@ build/
 .eggs/
 
 # Database
-backend/data/*.db
-backend/data/*.sqlite
+**/*.db
+**/*.sqlite
 
 # Node
 frontend/node_modules/
