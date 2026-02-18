@@ -168,6 +168,19 @@ async def get_dashboard_stats(db: Session = Depends(get_db)):
     }
 
 
+@router.get("/stats/env-check")
+async def check_env():
+    """Temporary: check raw os.environ for API key (bypasses pydantic-settings)"""
+    import os
+    key = os.environ.get("ANTHROPIC_API_KEY", "")
+    return {
+        "raw_env_key_set": bool(key),
+        "raw_env_key_prefix": key[:10] if key else "(empty)",
+        "pydantic_settings_key_set": bool(settings.anthropic_api_key),
+        "pydantic_key_prefix": settings.anthropic_api_key[:10] if settings.anthropic_api_key else "(empty)",
+    }
+
+
 @router.get("/stats/diagnostics")
 async def get_diagnostics(db: Session = Depends(get_db)):
     """
