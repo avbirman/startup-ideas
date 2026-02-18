@@ -454,6 +454,50 @@ Return ONLY valid JSON, no markdown or extra text."""
         except _json.JSONDecodeError as e:
             result["json_error"] = str(e)
             result["json_parsed_ok"] = False
+            return result
+
+        # Try saving to DB (same as analyze_problem)
+        from db.models import Problem as _Problem, StartupIdea as _Idea, AnalysisTier as _Tier
+        from agents.analyzers.problem_analyzer import ProblemAnalyzer as _PA
+        audience_type = _PA._normalize_audience_type(parsed.get("audience_type"))
+        if audience_type == "unknown":
+            audience_type = _PA._infer_audience_type(parsed.get("target_audience"), parsed.get("problem_statement"))
+        result["audience_type"] = audience_type
+        try:
+            problem = _Problem(
+                discussion_id=discussion.id,
+                problem_statement=parsed.get("problem_statement", ""),
+                severity=parsed.get("severity"),
+                target_audience=parsed.get("target_audience"),
+                audience_type=audience_type,
+                current_solutions=parsed.get("current_solutions"),
+                why_they_fail=parsed.get("why_they_fail"),
+                analysis_tier=_Tier.NONE
+            )
+            db.add(problem)
+            db.commit()
+            db.refresh(problem)
+            result["problem_saved"] = True
+            result["problem_id"] = problem.id
+
+            for idea_data in parsed.get("startup_ideas", []):
+                idea = _Idea(
+                    problem_id=problem.id,
+                    idea_title=idea_data.get("title", ""),
+                    description=idea_data.get("description", ""),
+                    approach=idea_data.get("approach"),
+                    business_model=idea_data.get("business_model"),
+                    value_proposition=idea_data.get("value_proposition"),
+                    core_features=idea_data.get("core_features", []),
+                    monetization=idea_data.get("monetization"),
+                )
+                db.add(idea)
+            db.commit()
+            result["ideas_saved"] = len(parsed.get("startup_ideas", []))
+        except Exception as e:
+            db.rollback()
+            result["db_error"] = str(e)
+            result["db_traceback"] = _tb.format_exc()[-500:]
     except Exception as e:
         result["api_error"] = str(e)
         result["traceback"] = _tb.format_exc()[-500:]
