@@ -14,6 +14,7 @@ from db.models import (
     Discussion, Problem, StartupIdea, OverallScores,
     AnalysisTier, Source, SourceType, CardStatus
 )
+from config import settings
 
 router = APIRouter()
 
@@ -163,6 +164,51 @@ async def get_dashboard_stats(db: Session = Depends(get_db)):
         "starred_count": db.query(func.count(Problem.id)).filter(
             Problem.is_starred == True
         ).scalar() or 0,
+        "timestamp": datetime.utcnow().isoformat()
+    }
+
+
+@router.get("/stats/diagnostics")
+async def get_diagnostics(db: Session = Depends(get_db)):
+    """
+    Check system health: API keys, unanalyzed discussions count, etc.
+    Useful for debugging why analysis isn't running.
+    """
+    # Check API keys
+    anthropic_key_set = bool(settings.anthropic_api_key)
+    tavily_key_set = bool(settings.tavily_api_key)
+
+    # Unanalyzed discussions
+    unanalyzed_count = db.query(func.count(Discussion.id)).filter(
+        Discussion.is_analyzed == False
+    ).scalar()
+
+    # Test Anthropic API if key is set
+    anthropic_status = "not_tested"
+    if anthropic_key_set:
+        try:
+            import anthropic
+            client = anthropic.Anthropic(api_key=settings.anthropic_api_key)
+            msg = client.messages.create(
+                model=settings.filter_model,
+                max_tokens=5,
+                messages=[{"role": "user", "content": "Hi"}]
+            )
+            anthropic_status = "ok"
+        except Exception as e:
+            anthropic_status = f"error: {str(e)[:100]}"
+    else:
+        anthropic_status = "key_not_set"
+
+    return {
+        "api_keys": {
+            "anthropic": anthropic_key_set,
+            "tavily": tavily_key_set,
+        },
+        "anthropic_api_status": anthropic_status,
+        "unanalyzed_discussions": unanalyzed_count,
+        "filter_model": settings.filter_model,
+        "analysis_model": settings.analysis_model,
         "timestamp": datetime.utcnow().isoformat()
     }
 

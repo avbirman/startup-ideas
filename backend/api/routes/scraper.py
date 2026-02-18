@@ -94,9 +94,11 @@ def run_scrape_and_analyze(source: str, limit: int, triggered_by: str = "manual"
         discussions_count = scrape_result.get("discussions_count", 0)
         logger.info(f"Scrape complete: {scrape_result}")
 
-        # Run analysis on new discussions
+        # Run analysis on ALL unanalyzed discussions (not just newly scraped ones)
+        # Using a fixed limit to avoid limit=0 when scraping found no new items
+        ANALYSIS_BATCH_LIMIT = 100
         orchestrator = Orchestrator(db)
-        analysis_result = orchestrator.batch_analyze(limit=discussions_count)
+        analysis_result = orchestrator.batch_analyze(limit=ANALYSIS_BATCH_LIMIT)
         problems_created = analysis_result.get("problems_created", 0) if analysis_result else 0
         logger.info(f"Analysis complete: {analysis_result}")
 
@@ -174,6 +176,34 @@ async def trigger_scrape(
             "status": "error",
             "message": f"Unknown source: {source}. Use 'reddit', 'hackernews', 'youtube', 'medium', or 'all'"
         }
+
+
+@router.post("/analyze")
+async def trigger_analysis(
+    background_tasks: BackgroundTasks,
+    limit: int = 100,
+):
+    """
+    Manually trigger analysis on all unanalyzed discussions.
+    Useful when scraping produced 0 new items but unanalyzed discussions exist.
+    """
+    def _run_analysis(limit: int):
+        db = SessionLocal()
+        try:
+            orchestrator = Orchestrator(db)
+            result = orchestrator.batch_analyze(limit=limit)
+            logger.info(f"Manual analysis complete: {result}")
+        except Exception as e:
+            logger.error(f"Manual analysis failed: {e}")
+        finally:
+            db.close()
+
+    background_tasks.add_task(_run_analysis, limit)
+    return {
+        "status": "started",
+        "message": f"Analyzing up to {limit} unanalyzed discussions in background",
+        "timestamp": datetime.utcnow().isoformat()
+    }
 
 
 # --- Scrape history ---

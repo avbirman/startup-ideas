@@ -14,6 +14,9 @@ class BaseAnalyzer(ABC):
     """Base class for all Claude AI analyzers"""
 
     def __init__(self):
+        if not settings.anthropic_api_key:
+            logger.error("CRITICAL: ANTHROPIC_API_KEY is not set! Analysis will fail for all discussions.")
+            raise ValueError("ANTHROPIC_API_KEY environment variable is required but not set")
         self.client = anthropic.Anthropic(api_key=settings.anthropic_api_key)
         self.filter_model = settings.filter_model  # Haiku for quick filtering
         self.analysis_model = settings.analysis_model  # Sonnet for deep analysis

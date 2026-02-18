@@ -23,8 +23,12 @@ class Orchestrator:
 
     def __init__(self, db: Session):
         self.db = db
-        self.problem_analyzer = ProblemAnalyzer(db)
-        self.marketing_agent = MarketingAgent(db)
+        try:
+            self.problem_analyzer = ProblemAnalyzer(db)
+            self.marketing_agent = MarketingAgent(db)
+        except ValueError as e:
+            logger.error(f"Failed to initialize analyzers: {e}")
+            raise
 
     def analyze_discussion(self, discussion: Discussion) -> Dict[str, Any]:
         """
