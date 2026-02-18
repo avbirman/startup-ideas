@@ -125,9 +125,25 @@ def run_scrape_and_analyze(source: str, limit: int, triggered_by: str = "manual"
         db.close()
 
 
+ALL_SOURCES = ["reddit", "hackernews", "youtube", "medium", "tavily", "appstore"]
+
+
+def run_all_sources_sequential(limit: int, triggered_by: str = "manual"):
+    """Run all scrapers one by one to avoid SQLite concurrent write locks."""
+    per_source_limit = max(1, limit // len(ALL_SOURCES))
+    for src in ALL_SOURCES:
+        try:
+            run_scrape_and_analyze(src, per_source_limit, triggered_by)
+        except Exception as e:
+            logger.error(f"Error scraping {src}: {e}")
+
+
 def _scheduled_scrape(source: str, limit: int, triggered_by: str = "schedule"):
     """Wrapper for scheduler to call run_scrape_and_analyze."""
-    run_scrape_and_analyze(source, limit, triggered_by)
+    if source == "all":
+        run_all_sources_sequential(limit, triggered_by)
+    else:
+        run_scrape_and_analyze(source, limit, triggered_by)
 
 
 # Wire up the scheduler
@@ -149,16 +165,11 @@ async def trigger_scrape(
     logger.info(f"Manual scrape triggered: source={source}, limit={limit}, analyze={analyze}")
 
     if source == "all":
-        per_source_limit = max(1, limit // 6)
-        background_tasks.add_task(run_scrape_and_analyze, "reddit", per_source_limit, "manual")
-        background_tasks.add_task(run_scrape_and_analyze, "hackernews", per_source_limit, "manual")
-        background_tasks.add_task(run_scrape_and_analyze, "youtube", per_source_limit, "manual")
-        background_tasks.add_task(run_scrape_and_analyze, "medium", per_source_limit, "manual")
-        background_tasks.add_task(run_scrape_and_analyze, "tavily", per_source_limit, "manual")
-        background_tasks.add_task(run_scrape_and_analyze, "appstore", per_source_limit, "manual")
+        background_tasks.add_task(run_all_sources_sequential, limit, "manual")
+        per_source_limit = max(1, limit // len(ALL_SOURCES))
         return {
             "status": "started",
-            "message": f"Scraping Reddit, Hacker News, YouTube, Medium, Tavily, App Store ({per_source_limit} each)",
+            "message": f"Scraping all sources sequentially ({per_source_limit} each): {', '.join(ALL_SOURCES)}",
             "analyze": analyze,
             "timestamp": datetime.utcnow().isoformat()
         }
