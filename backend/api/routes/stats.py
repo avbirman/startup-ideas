@@ -173,11 +173,17 @@ async def check_env():
     """Temporary: check raw os.environ for API key (bypasses pydantic-settings)"""
     import os
     key = os.environ.get("ANTHROPIC_API_KEY", "")
+    # Show Railway-injected service identifiers (safe to expose, no secrets)
+    railway_vars = {k: v[:30] for k, v in os.environ.items() if k.startswith("RAILWAY_")}
+    # Show all env var names that look like API keys (without values)
+    api_key_names = [k for k in os.environ if "KEY" in k or "TOKEN" in k or "SECRET" in k]
     return {
         "raw_env_key_set": bool(key),
         "raw_env_key_prefix": key[:10] if key else "(empty)",
         "pydantic_settings_key_set": bool(settings.anthropic_api_key),
         "pydantic_key_prefix": settings.anthropic_api_key[:10] if settings.anthropic_api_key else "(empty)",
+        "railway_vars": railway_vars,
+        "api_key_env_var_names": api_key_names,
     }
 
 
