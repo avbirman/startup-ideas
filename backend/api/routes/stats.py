@@ -317,6 +317,59 @@ Return ONLY valid JSON, no markdown."""
     return result
 
 
+@router.get("/stats/sonnet-test")
+async def test_sonnet_analysis(db: Session = Depends(get_db)):
+    """Test Sonnet analysis stage directly on a discussion that already passed the filter."""
+    import anthropic as _anthropic
+    from config import settings as s
+    import json as _json, re as _re
+
+    # Find a discussion that passed the filter (regardless of is_analyzed)
+    discussion = db.query(Discussion).filter(
+        Discussion.passed_filter == True
+    ).first()
+
+    if not discussion:
+        return {"error": "No discussions with passed_filter=True found. Run filter-test first."}
+
+    client = _anthropic.Anthropic(api_key=s.anthropic_api_key)
+    result = {
+        "discussion_id": discussion.id,
+        "title": discussion.title[:100],
+        "upvotes": discussion.upvotes,
+        "passed_filter": discussion.passed_filter,
+        "is_analyzed": discussion.is_analyzed,
+    }
+
+    analysis_prompt = f"""Analyze this discussion and return JSON with problem_statement, severity (1-10), target_audience, startup_ideas (array with title, description, approach).
+
+Title: {discussion.title}
+Content: {(discussion.content or '')[:2000]}
+
+Return ONLY valid JSON, no markdown."""
+    try:
+        msg = client.messages.create(
+            model=s.analysis_model, max_tokens=1500, temperature=0.7,
+            system="You are a startup analyst. Return JSON only.",
+            messages=[{"role": "user", "content": analysis_prompt}]
+        )
+        raw = msg.content[0].text
+        result["raw_response_preview"] = raw[:800]
+        cleaned = _re.sub(r'```json\s*', '', raw)
+        cleaned = _re.sub(r'```\s*$', '', cleaned).strip()
+        parsed = _json.loads(cleaned)
+        result["parsed_ok"] = True
+        result["problem_statement"] = parsed.get("problem_statement", "")[:200]
+        result["ideas_count"] = len(parsed.get("startup_ideas", []))
+    except _json.JSONDecodeError as e:
+        result["json_error"] = str(e)
+        result["raw_response_preview"] = raw[:800] if 'raw' in dir() else "no response"
+    except Exception as e:
+        result["error"] = str(e)
+
+    return result
+
+
 @router.get("/stats/env-check")
 async def check_env():
     """Temporary: check raw os.environ for API key (bypasses pydantic-settings)"""
