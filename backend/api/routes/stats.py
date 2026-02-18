@@ -372,47 +372,91 @@ Return ONLY valid JSON, no markdown."""
 
 @router.get("/stats/analyze-real")
 async def analyze_real(db: Session = Depends(get_db)):
-    """Run the ACTUAL ProblemAnalyzer.analyze_problem() on a discussion that passed the filter."""
-    import traceback
-    from agents.analyzers.problem_analyzer import ProblemAnalyzer
+    """Run the real analyze_problem prompt inline and expose raw response + errors."""
+    import anthropic as _anthropic
+    import json as _json, re as _re, traceback as _tb
+    from config import settings as s
     from db.models import Problem
+    from sqlalchemy import exists as _exists
 
-    # Find a discussion that passed the filter but has no problem yet
-    from sqlalchemy import not_, exists
     discussion = db.query(Discussion).filter(
         Discussion.passed_filter == True,
-        ~exists().where(Problem.discussion_id == Discussion.id)
+        ~_exists().where(Problem.discussion_id == Discussion.id)
     ).first()
-
     if not discussion:
-        # Fall back to any passed_filter=True
         discussion = db.query(Discussion).filter(Discussion.passed_filter == True).first()
-        if not discussion:
-            return {"error": "No discussions with passed_filter=True found"}
+    if not discussion:
+        return {"error": "No discussions with passed_filter=True found"}
 
     result = {
         "discussion_id": discussion.id,
         "title": discussion.title[:100],
         "upvotes": discussion.upvotes,
-        "is_analyzed": discussion.is_analyzed,
     }
 
+    # Use the SAME prompt as analyze_problem in problem_analyzer.py
+    analysis_prompt = f"""Analyze this discussion to extract the core problem and generate startup ideas.
+
+IMPORTANT: Provide ALL output in Russian language (problem_statement, target_audience, current_solutions, why_they_fail, startup idea titles and descriptions, etc.)
+
+Title: {discussion.title}
+Upvotes: {discussion.upvotes}
+Comments: {discussion.comments_count}
+
+Content:
+{(discussion.content or '')[:3000]}
+
+Provide your analysis in this EXACT JSON format (all text fields in Russian):
+{{
+    "problem_statement": "Clear 1-2 sentence description of the core problem",
+    "severity": 7,
+    "target_audience": "Who experiences this problem (be specific)",
+    "audience_type": "consumers|entrepreneurs|mixed|unknown",
+    "current_solutions": "What solutions exist today?",
+    "why_they_fail": "Why do current solutions fail to solve this?",
+    "startup_ideas": [
+        {{
+            "title": "Idea name",
+            "description": "What the startup does (2-3 sentences)",
+            "approach": "SaaS/marketplace/tool/API/mobile_app/community/browser_extension",
+            "business_model": "B2C subscription/B2B SaaS/freemium/marketplace commission/one-time purchase/API usage",
+            "value_proposition": "Why would people pay for this?",
+            "core_features": ["Feature 1", "Feature 2", "Feature 3"],
+            "monetization": "How exactly does it make money? (e.g. $9/mo per user, 5% commission, $99 one-time)"
+        }}
+    ]
+}}
+
+Return ONLY valid JSON, no markdown or extra text."""
+
     try:
-        analyzer = ProblemAnalyzer(db)
-        problem = analyzer.analyze_problem(discussion)
-        if problem:
-            result["success"] = True
-            result["problem_id"] = problem.id
-            result["problem_statement"] = (problem.problem_statement or "")[:200]
-            result["ideas_count"] = len(problem.startup_ideas)
-            result["severity"] = problem.severity
-        else:
-            result["success"] = False
-            result["error"] = "analyze_problem returned None (check Railway logs for details)"
+        client = _anthropic.Anthropic(api_key=s.anthropic_api_key)
+        msg = client.messages.create(
+            model=s.analysis_model,
+            max_tokens=2500,
+            temperature=0.7,
+            system="You are an expert startup advisor. Return JSON only.",
+            messages=[{"role": "user", "content": analysis_prompt}]
+        )
+        raw = msg.content[0].text
+        result["raw_length"] = len(raw)
+        result["raw_preview"] = raw[:1000]
+        result["raw_tail"] = raw[-200:]  # Check if JSON is truncated
+        result["stop_reason"] = msg.stop_reason
+
+        cleaned = _re.sub(r'```json\s*', '', raw)
+        cleaned = _re.sub(r'```\s*$', '', cleaned).strip()
+        try:
+            parsed = _json.loads(cleaned)
+            result["json_parsed_ok"] = True
+            result["ideas_count"] = len(parsed.get("startup_ideas", []))
+            result["problem_statement"] = parsed.get("problem_statement", "")[:200]
+        except _json.JSONDecodeError as e:
+            result["json_error"] = str(e)
+            result["json_parsed_ok"] = False
     except Exception as e:
-        result["success"] = False
-        result["exception"] = str(e)
-        result["traceback"] = traceback.format_exc()[-1000:]
+        result["api_error"] = str(e)
+        result["traceback"] = _tb.format_exc()[-500:]
 
     return result
 
