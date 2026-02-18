@@ -433,7 +433,7 @@ Return ONLY valid JSON, no markdown or extra text."""
         client = _anthropic.Anthropic(api_key=s.anthropic_api_key)
         msg = client.messages.create(
             model=s.analysis_model,
-            max_tokens=2500,
+            max_tokens=4096,
             temperature=0.7,
             system="You are an expert startup advisor. Return JSON only.",
             messages=[{"role": "user", "content": analysis_prompt}]

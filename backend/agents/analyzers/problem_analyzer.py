@@ -175,7 +175,7 @@ IMPORTANT: Always provide your analysis in Russian language."""
         try:
             response = self._deep_analysis(
                 analysis_prompt,
-                max_tokens=2500,
+                max_tokens=4096,
                 system=system_prompt
             )
 
