@@ -353,20 +353,33 @@ async def get_diagnostics(db: Session = Depends(get_db)):
 
     # Test Anthropic API if key is set
     anthropic_status = "not_tested"
+    sonnet_status = "not_tested"
     if anthropic_key_set:
         try:
             import anthropic
             client = anthropic.Anthropic(api_key=settings.anthropic_api_key)
             msg = client.messages.create(
                 model=settings.filter_model,
-                max_tokens=5,
-                messages=[{"role": "user", "content": "Hi"}]
+                max_tokens=10,
+                messages=[{"role": "user", "content": "Say OK"}]
             )
             anthropic_status = "ok"
         except Exception as e:
-            anthropic_status = f"error: {str(e)[:100]}"
+            anthropic_status = f"error: {str(e)[:150]}"
+
+        # Also test Sonnet (analysis model)
+        try:
+            msg2 = client.messages.create(
+                model=settings.analysis_model,
+                max_tokens=10,
+                messages=[{"role": "user", "content": "Say OK"}]
+            )
+            sonnet_status = "ok"
+        except Exception as e:
+            sonnet_status = f"error: {str(e)[:150]}"
     else:
         anthropic_status = "key_not_set"
+        sonnet_status = "key_not_set"
 
     return {
         "api_keys": {
@@ -374,6 +387,7 @@ async def get_diagnostics(db: Session = Depends(get_db)):
             "tavily": tavily_key_set,
         },
         "anthropic_api_status": anthropic_status,
+        "sonnet_api_status": sonnet_status,
         "unanalyzed_discussions": unanalyzed_count,
         "filter_model": settings.filter_model,
         "analysis_model": settings.analysis_model,
