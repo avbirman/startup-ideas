@@ -217,11 +217,13 @@ class Orchestrator:
         """
         logger.info(f"Starting batch analysis (limit: {limit})")
 
-        # Get unanalyzed discussions
+        # Get unanalyzed discussions - use random order to avoid
+        # high-upvote meme/entertainment posts monopolizing the queue
+        from sqlalchemy import func as _func
         discussions = self.db.query(Discussion).filter(
             Discussion.is_analyzed == False
         ).order_by(
-            Discussion.upvotes.desc()  # Prioritize high-engagement discussions
+            _func.random()
         ).limit(limit).all()
 
         logger.info(f"Found {len(discussions)} unanalyzed discussions")
