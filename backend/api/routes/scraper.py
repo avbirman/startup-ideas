@@ -178,6 +178,38 @@ async def trigger_scrape(
         }
 
 
+@router.post("/reset-analyzed")
+async def reset_analyzed_discussions(db: Session = Depends(get_db)):
+    """
+    Reset is_analyzed=False for all discussions that have no associated problem.
+    Use this when analysis failed silently (e.g. API key was missing) and
+    discussions were incorrectly marked as analyzed.
+    """
+    from db.models import Discussion as DiscussionModel, Problem as ProblemModel
+    # Find discussions with no associated problem
+    analyzed_without_problem = (
+        db.query(DiscussionModel)
+        .outerjoin(ProblemModel, ProblemModel.discussion_id == DiscussionModel.id)
+        .filter(
+            DiscussionModel.is_analyzed == True,
+            ProblemModel.id == None
+        )
+        .all()
+    )
+    count = len(analyzed_without_problem)
+    for d in analyzed_without_problem:
+        d.is_analyzed = False
+        d.passed_filter = None
+    db.commit()
+    logger.info(f"Reset {count} discussions to is_analyzed=False (had no associated problem)")
+    return {
+        "status": "ok",
+        "reset_count": count,
+        "message": f"Reset {count} discussions to unanalyzed state",
+        "timestamp": datetime.utcnow().isoformat()
+    }
+
+
 @router.post("/analyze")
 async def trigger_analysis(
     background_tasks: BackgroundTasks,
