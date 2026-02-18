@@ -25,6 +25,11 @@ export default function ProblemDetailPage() {
       try {
         setLoading(true);
         const data = await api.getProblem(problemId);
+        // Auto-mark as viewed if still new
+        if (data.card_status === 'new') {
+          api.updateCardStatus(problemId, 'viewed').catch(() => {});
+          data.card_status = 'viewed';
+        }
         setProblem(data);
         setError(null);
       } catch (err) {
@@ -86,7 +91,7 @@ export default function ProblemDetailPage() {
     <div className="page-shell">
       <main className="app-container space-y-6">
         <section className="app-card p-6">
-          <button onClick={() => router.push('/problems')} className="mb-4 inline-flex items-center gap-1 text-sm font-semibold text-[var(--accent)]">
+          <button onClick={() => router.back()} className="mb-4 inline-flex items-center gap-1 text-sm font-semibold text-[var(--accent)]">
             <ArrowLeft size={16} />
             К списку проблем
           </button>

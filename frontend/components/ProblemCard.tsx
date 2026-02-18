@@ -39,7 +39,7 @@ export function ProblemCard({ problem, onStarToggle }: ProblemCardProps) {
 
   return (
     <Link href={`/problems/${problem.id}`}>
-      <div className="app-card relative cursor-pointer p-6 transition hover:-translate-y-0.5 hover:shadow-xl">
+      <div className={`app-card relative cursor-pointer p-6 transition hover:-translate-y-0.5 hover:shadow-xl ${problem.card_status === 'viewed' ? 'opacity-60 hover:opacity-90' : ''}`}>
         {/* Star Button - top right */}
         <div className="absolute top-4 right-4">
           <StarButton

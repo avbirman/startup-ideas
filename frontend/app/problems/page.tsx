@@ -11,12 +11,27 @@ export default function ProblemsPage() {
   const [problems, setProblems] = useState<Problem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [filtersReady, setFiltersReady] = useState(false);
   const [filters, setFilters] = useState<ProblemFilters>({
     sort_by: 'score',
     limit: 50,
   });
 
+  // Restore audience tab from sessionStorage + read URL params on mount
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const savedTab = sessionStorage.getItem('problems_audience_tab') as AudienceType | null;
+    const isStarred = params.get('is_starred') === 'true';
+    setFilters((prev) => ({
+      ...prev,
+      audience_type: savedTab || undefined,
+      is_starred: isStarred || undefined,
+    }));
+    setFiltersReady(true);
+  }, []);
+
   const loadProblems = useCallback(async () => {
+    if (!filtersReady) return;
     try {
       setLoading(true);
       const data = await api.getProblems({
@@ -31,7 +46,7 @@ export default function ProblemsPage() {
     } finally {
       setLoading(false);
     }
-  }, [filters]);
+  }, [filters, filtersReady]);
 
   useEffect(() => {
     loadProblems();
@@ -44,6 +59,7 @@ export default function ProblemsPage() {
   };
 
   const setAudienceTab = (audienceType?: AudienceType) => {
+    sessionStorage.setItem('problems_audience_tab', audienceType || '');
     setFilters((prev) => ({
       ...prev,
       audience_type: audienceType,
