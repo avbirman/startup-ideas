@@ -370,6 +370,53 @@ Return ONLY valid JSON, no markdown."""
     return result
 
 
+@router.get("/stats/analyze-real")
+async def analyze_real(db: Session = Depends(get_db)):
+    """Run the ACTUAL ProblemAnalyzer.analyze_problem() on a discussion that passed the filter."""
+    import traceback
+    from agents.analyzers.problem_analyzer import ProblemAnalyzer
+    from db.models import Problem
+
+    # Find a discussion that passed the filter but has no problem yet
+    from sqlalchemy import not_, exists
+    discussion = db.query(Discussion).filter(
+        Discussion.passed_filter == True,
+        ~exists().where(Problem.discussion_id == Discussion.id)
+    ).first()
+
+    if not discussion:
+        # Fall back to any passed_filter=True
+        discussion = db.query(Discussion).filter(Discussion.passed_filter == True).first()
+        if not discussion:
+            return {"error": "No discussions with passed_filter=True found"}
+
+    result = {
+        "discussion_id": discussion.id,
+        "title": discussion.title[:100],
+        "upvotes": discussion.upvotes,
+        "is_analyzed": discussion.is_analyzed,
+    }
+
+    try:
+        analyzer = ProblemAnalyzer(db)
+        problem = analyzer.analyze_problem(discussion)
+        if problem:
+            result["success"] = True
+            result["problem_id"] = problem.id
+            result["problem_statement"] = (problem.problem_statement or "")[:200]
+            result["ideas_count"] = len(problem.startup_ideas)
+            result["severity"] = problem.severity
+        else:
+            result["success"] = False
+            result["error"] = "analyze_problem returned None (check Railway logs for details)"
+    except Exception as e:
+        result["success"] = False
+        result["exception"] = str(e)
+        result["traceback"] = traceback.format_exc()[-1000:]
+
+    return result
+
+
 @router.get("/stats/env-check")
 async def check_env():
     """Temporary: check raw os.environ for API key (bypasses pydantic-settings)"""
