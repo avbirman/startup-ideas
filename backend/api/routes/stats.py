@@ -168,6 +168,70 @@ async def get_dashboard_stats(db: Session = Depends(get_db)):
     }
 
 
+@router.get("/stats/filter-test")
+async def test_filter(db: Session = Depends(get_db)):
+    """Test the Haiku filter on one unanalyzed discussion to debug why 0 problems are created."""
+    import os
+    from config import settings as s
+
+    # Get one unanalyzed discussion
+    discussion = db.query(Discussion).filter(
+        Discussion.is_analyzed == False
+    ).first()
+
+    if not discussion:
+        # Try any discussion
+        discussion = db.query(Discussion).first()
+        if not discussion:
+            return {"error": "No discussions in database"}
+
+    filter_prompt = f"""Analyze this discussion and determine if it contains a REAL, SOLVABLE problem that could be a startup opportunity.
+
+Title: {discussion.title}
+
+Content:
+{(discussion.content or '')[:2000]}
+
+Answer with ONLY "YES" or "NO" followed by a brief reason (max 20 words).
+
+YES if:
+- Real frustration or pain point expressed
+- Multiple people might have this problem
+- Could be solved with technology/software
+
+NO if:
+- Sarcasm, joke, or exaggeration
+- Unsolvable problem
+- Too specific/niche
+- Already perfectly solved
+
+Format: YES/NO: [reason]"""
+
+    try:
+        import anthropic
+        client = anthropic.Anthropic(api_key=s.anthropic_api_key)
+        msg = client.messages.create(
+            model=s.filter_model,
+            max_tokens=100,
+            temperature=0.3,
+            system="You are a startup idea validator.",
+            messages=[{"role": "user", "content": filter_prompt}]
+        )
+        response = msg.content[0].text
+        return {
+            "discussion_id": discussion.id,
+            "discussion_title": discussion.title[:100],
+            "discussion_source": discussion.source.name if discussion.source else "?",
+            "discussion_upvotes": discussion.upvotes,
+            "is_analyzed": discussion.is_analyzed,
+            "filter_response": response,
+            "would_pass": response.strip().upper().startswith("YES"),
+            "filter_model": s.filter_model,
+        }
+    except Exception as e:
+        return {"error": str(e), "discussion_title": discussion.title[:100]}
+
+
 @router.get("/stats/env-check")
 async def check_env():
     """Temporary: check raw os.environ for API key (bypasses pydantic-settings)"""
