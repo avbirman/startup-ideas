@@ -232,6 +232,72 @@ Format: YES/NO: [reason]"""
         return {"error": str(e), "discussion_title": discussion.title[:100]}
 
 
+@router.get("/stats/analyze-one")
+async def analyze_one_sync(db: Session = Depends(get_db)):
+    """Synchronously run full analysis on ONE discussion and return all intermediate results."""
+    import anthropic as _anthropic
+    from config import settings as s
+
+    # Get an unanalyzed discussion - prefer ones with decent upvotes
+    discussion = db.query(Discussion).filter(
+        Discussion.is_analyzed == False,
+        Discussion.upvotes < 5000  # avoid viral meme posts
+    ).order_by(Discussion.upvotes.desc()).first()
+
+    if not discussion:
+        discussion = db.query(Discussion).filter(Discussion.is_analyzed == False).first()
+    if not discussion:
+        return {"error": "No unanalyzed discussions available"}
+
+    client = _anthropic.Anthropic(api_key=s.anthropic_api_key)
+    result = {"discussion_id": discussion.id, "title": discussion.title[:100],
+              "upvotes": discussion.upvotes, "source": discussion.source.name if discussion.source else "?"}
+
+    # Stage 1: Haiku filter
+    filter_prompt = f"""Title: {discussion.title}\n\nContent:\n{(discussion.content or '')[:1500]}\n\nDoes this contain a REAL, SOLVABLE startup problem? Answer YES or NO with brief reason."""
+    try:
+        msg = client.messages.create(model=s.filter_model, max_tokens=100, temperature=0.3,
+            system="You are a startup validator. Answer YES or NO.",
+            messages=[{"role": "user", "content": filter_prompt}])
+        filter_response = msg.content[0].text
+        result["filter_response"] = filter_response
+        result["filter_passed"] = filter_response.strip().upper().startswith("YES")
+    except Exception as e:
+        result["filter_error"] = str(e)
+        return result
+
+    if not result["filter_passed"]:
+        return result
+
+    # Stage 2: Sonnet analysis
+    analysis_prompt = f"""Analyze this discussion and return JSON with problem_statement, severity (1-10), target_audience, startup_ideas (array with title, description, approach).
+
+Title: {discussion.title}
+Content: {(discussion.content or '')[:2000]}
+
+Return ONLY valid JSON, no markdown."""
+    try:
+        msg2 = client.messages.create(model=s.analysis_model, max_tokens=1500, temperature=0.7,
+            system="You are a startup analyst. Return JSON only.",
+            messages=[{"role": "user", "content": analysis_prompt}])
+        analysis_response = msg2.content[0].text
+        result["analysis_response_preview"] = analysis_response[:500]
+        import json as _json, re as _re
+        cleaned = _re.sub(r'```json\s*', '', analysis_response)
+        cleaned = _re.sub(r'```\s*$', '', cleaned).strip()
+        parsed = _json.loads(cleaned)
+        result["analysis_parsed_ok"] = True
+        result["problem_statement"] = parsed.get("problem_statement", "")[:100]
+        result["ideas_count"] = len(parsed.get("startup_ideas", []))
+    except _json.JSONDecodeError as e:
+        result["analysis_json_error"] = str(e)
+        result["analysis_response_preview"] = analysis_response[:500] if 'analysis_response' in dir() else "no response"
+    except Exception as e:
+        result["analysis_error"] = str(e)
+
+    return result
+
+
 @router.get("/stats/env-check")
 async def check_env():
     """Temporary: check raw os.environ for API key (bypasses pydantic-settings)"""
