@@ -232,6 +232,25 @@ Format: YES/NO: [reason]"""
         return {"error": str(e), "discussion_title": discussion.title[:100]}
 
 
+@router.get("/stats/discussions-sample")
+async def discussions_sample(db: Session = Depends(get_db)):
+    """Show sample of discussions to understand data quality."""
+    from sqlalchemy import func as _f
+    unanalyzed = db.query(Discussion).filter(
+        Discussion.is_analyzed == False
+    ).order_by(_f.random()).limit(10).all()
+    analyzed = db.query(Discussion).filter(
+        Discussion.is_analyzed == True
+    ).order_by(Discussion.id.desc()).limit(5).all()
+    return {
+        "unanalyzed_sample": [{"id": d.id, "title": d.title[:80], "upvotes": d.upvotes,
+                                "source": d.source.name if d.source else "?",
+                                "passed_filter": d.passed_filter} for d in unanalyzed],
+        "recently_analyzed": [{"id": d.id, "title": d.title[:80], "upvotes": d.upvotes,
+                               "passed_filter": d.passed_filter} for d in analyzed],
+    }
+
+
 @router.get("/stats/analyze-one")
 async def analyze_one_sync(db: Session = Depends(get_db)):
     """Synchronously run full analysis on ONE discussion and return all intermediate results."""
